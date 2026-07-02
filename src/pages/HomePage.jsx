@@ -29,52 +29,8 @@ function HomePage({ user, posts, draft, setDraft, imageUrl, setImageUrl, onPubli
   };
 
   return (
-    <div className="page-shell">
-      <header className="topbar">
-        <div className="brand-block">
-          <div className="brand-mark">✦</div>
-          <div className="brand-copy">
-            <p className="eyebrow">Social feed</p>
-            <h1>Twiiiiter</h1>
-          </div>
-        </div>
-        <label className="search-pill" htmlFor="search">
-          <span>⌕</span>
-          <input id="search" placeholder="Search" />
-        </label>
-        <div className="topbar-actions">
-          <button className="ghost-button" type="button" onClick={toggleDarkMode}>
-            {darkMode ? 'Light' : 'Dark'}
-          </button>
-          {user ? (
-            <Link className="ghost-button" to="/profile">{user.name}</Link>
-          ) : (
-            <Link className="ghost-button" to="/auth">Sign in</Link>
-          )}
-        </div>
-      </header>
-
-      <main className="layout-grid">
-        <aside className="sidebar">
-          <nav className="panel nav-panel">
-            <Link className="nav-item active" to="/">Home</Link>
-            <Link className="nav-item" to="/explore">Explore</Link>
-            <Link className="nav-item" to="/notifications">Notifications</Link>
-            <Link className="nav-item" to="/messages">Messages</Link>
-            <Link className="nav-item" to="/bookmarks">Bookmarks</Link>
-            <button className="primary-button" type="button" onClick={handleCompose}>
-              Compose
-            </button>
-          </nav>
-
-          <div className="panel profile-card">
-            <p className="eyebrow">Quick access</p>
-            <h3>Stay in the loop.</h3>
-            <p>Create posts, switch themes, and keep your profile fresh.</p>
-            {user ? <Link className="ghost-button" to="/profile">View profile</Link> : <Link className="ghost-button" to="/auth">Join now</Link>}
-          </div>
-        </aside>
-
+    <div className="page-content-stack">
+      <div className="home-page-layout">
         <section className="feed-column">
           <div className="panel feed-tabs" role="tablist" aria-label="Feed filters">
             <button className="tab active" type="button">For you</button>
@@ -82,34 +38,34 @@ function HomePage({ user, posts, draft, setDraft, imageUrl, setImageUrl, onPubli
           </div>
 
           <div className="panel composer-card">
-              <div className="composer-header">
-                {user?.photo ? <img className="avatar" src={user.photo} alt={user.name} /> : <div className="avatar">{user ? user.name.charAt(0) : 'Y'}</div>}
-                <div className="composer-copy">
-                  <h2>What is happening?</h2>
-                  <p>Share your ideas with a feed that feels familiar and polished.</p>
-                </div>
+            <div className="composer-header">
+              {user?.photo ? <img className="avatar" src={user.photo} alt={user.name} /> : <div className="avatar">{user ? user.name.charAt(0) : 'Y'}</div>}
+              <div className="composer-copy">
+                <h2>What is happening?</h2>
+                <p>Share your ideas with a feed that feels familiar and polished.</p>
               </div>
-              {!composerOpen ? (
-                <>
-                  <textarea
-                    value={draft}
-                    onChange={(event) => setDraft(event.target.value)}
-                    placeholder="Write something smart..."
-                    rows="4"
-                  />
-                  <div className="composer-actions">
-                    <span>{user ? `Welcome, ${user.name}` : 'Sign in to post instantly'}</span>
-                    <button className="primary-button" type="button" onClick={handlePublish}>
-                      Publish
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div className="composer-actions">
-                  <span>Compose in the dialog to add your post and image.</span>
-                </div>
-              )}
             </div>
+            {!composerOpen ? (
+              <>
+                <textarea
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  placeholder="Write something smart..."
+                  rows="4"
+                />
+                <div className="composer-actions">
+                  <span>{user ? `Welcome, ${user.name}` : 'Sign in to post instantly'}</span>
+                  <button className="primary-button" type="button" onClick={handlePublish}>
+                    Publish
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="composer-actions">
+                <span>Compose in the dialog to add your post and image.</span>
+              </div>
+            )}
+          </div>
           <div className="feed-list">
             {posts.map((post) => (
               <article className="panel post-card" key={post.id}>
@@ -157,7 +113,7 @@ function HomePage({ user, posts, draft, setDraft, imageUrl, setImageUrl, onPubli
             </div>
           </div>
         </aside>
-      </main>
+      </div>
 
       {composerOpen && (
         <div className="modal-backdrop" role="dialog" aria-modal="true" onClick={() => setComposerOpen(false)}>

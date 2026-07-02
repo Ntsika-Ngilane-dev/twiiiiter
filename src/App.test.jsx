@@ -32,6 +32,8 @@ describe('Twiiiiter app', () => {
     await user.click(screen.getByRole('button', { name: /sign up/i }));
 
     expect(screen.getByText(/welcome, ava/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/notifications/i)).toBeInTheDocument();
+    expect(screen.getAllByAltText(/ava/i)[0]).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /compose/i }));
     await user.type(screen.getByPlaceholderText(/write something smart/i), 'Testing the composer');

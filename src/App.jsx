@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import AuthPage from './pages/AuthPage';
+import SidebarNav from './components/SidebarNav';
 import ExplorePage from './pages/ExplorePage';
 import NotificationsPage from './pages/NotificationsPage';
 import MessagesPage from './pages/MessagesPage';
@@ -77,6 +78,7 @@ const getStorage = () => {
 
 function App() {
   const storage = useMemo(() => getStorage(), []);
+  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [posts, setPosts] = useState(() => {
     const saved = storage?.getItem('twiiiiter-posts');
@@ -95,6 +97,7 @@ function App() {
     return saved ? JSON.parse(saved) : null;
   });
   const [composerOpen, setComposerOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     storage?.setItem('twiiiiter-posts', JSON.stringify(posts));
@@ -153,34 +156,85 @@ function App() {
     setUser(nextUser);
   };
 
+  const renderWithShell = (page) => (
+    <div className="page-shell">
+      <header className="topbar">
+        <div className="brand-block">
+          <div className="brand-mark">✦</div>
+          <div className="brand-copy">
+            <p className="eyebrow">Social feed</p>
+            <h1>Twiiiiter</h1>
+          </div>
+        </div>
+        <label className="search-pill" htmlFor="search">
+          <span>⌕</span>
+          <input id="search" placeholder="Search" />
+        </label>
+        <div className="topbar-actions">
+          <button className="ghost-button" type="button" onClick={() => setDarkMode((value) => !value)}>
+            {darkMode ? 'Light' : 'Dark'}
+          </button>
+          <Link className="notification-link" to="/notifications" aria-label="Notifications">
+            <span aria-hidden="true">🔔</span>
+          </Link>
+          {user ? (
+            <Link className="profile-link" to="/profile" aria-label={`View ${user.name} profile`}>
+              {user.photo ? <img className="avatar small" src={user.photo} alt={user.name} /> : <div className="avatar small">{user.name.charAt(0)}</div>}
+            </Link>
+          ) : (
+            <Link className="ghost-button" to="/auth">Sign in</Link>
+          )}
+        </div>
+      </header>
+
+      <main className="layout-grid">
+        <SidebarNav
+          user={user}
+          onCompose={() => {
+            if (!user) {
+              navigate('/auth');
+              return;
+            }
+            setComposerOpen(true);
+          }}
+          collapsed={sidebarCollapsed}
+          toggleCollapsed={() => setSidebarCollapsed((value) => !value)}
+        />
+        {page}
+      </main>
+    </div>
+  );
+
   return (
     <div className={`app-shell ${darkMode ? 'dark' : ''}`}>
       <Routes>
         <Route
           path="/"
           element={
-            <HomePage
-              user={user}
-              posts={posts}
-              draft={draft}
-              setDraft={persistDraft}
-              imageUrl={imageUrl}
-              setImageUrl={persistImageUrl}
-              onPublish={handlePublish}
-              onOpenComposer={() => setComposerOpen(true)}
-              darkMode={darkMode}
-              toggleDarkMode={() => setDarkMode((value) => !value)}
-              composerOpen={composerOpen}
-              setComposerOpen={setComposerOpen}
-            />
+            renderWithShell(
+              <HomePage
+                user={user}
+                posts={posts}
+                draft={draft}
+                setDraft={persistDraft}
+                imageUrl={imageUrl}
+                setImageUrl={persistImageUrl}
+                onPublish={handlePublish}
+                onOpenComposer={() => setComposerOpen(true)}
+                darkMode={darkMode}
+                toggleDarkMode={() => setDarkMode((value) => !value)}
+                composerOpen={composerOpen}
+                setComposerOpen={setComposerOpen}
+              />
+            )
           }
         />
         <Route path="/auth" element={<AuthPage onAuthSuccess={handleAuthSuccess} />} />
-        <Route path="/explore" element={<ExplorePage />} />
-        <Route path="/notifications" element={<NotificationsPage />} />
-        <Route path="/messages" element={<MessagesPage />} />
-        <Route path="/bookmarks" element={<BookmarksPage />} />
-        <Route path="/profile" element={<ProfilePage user={user} />} />
+        <Route path="/explore" element={renderWithShell(<ExplorePage />)} />
+        <Route path="/notifications" element={renderWithShell(<NotificationsPage />)} />
+        <Route path="/messages" element={renderWithShell(<MessagesPage />)} />
+        <Route path="/bookmarks" element={renderWithShell(<BookmarksPage />)} />
+        <Route path="/profile" element={renderWithShell(<ProfilePage user={user} />)} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
