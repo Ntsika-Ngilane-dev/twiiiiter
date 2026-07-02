@@ -1,13 +1,14 @@
 # Twiiiiter
 
-A polished Twitter timeline clone built with React and Vite.
+A polished social feed experience built with React, Vite, and React Router.
 
 ## Features
-- Responsive Twitter-style home page layout
-- Dark mode toggle
-- Compose tweet modal
-- Sign-in modal
-- Trending sidebar section
+- Responsive social feed layout inspired by modern timelines
+- Multi-page navigation with home, explore, notifications, messages, bookmarks, and profile
+- Working sign-up and login flow with saved user state
+- Posting experience with image attachments
+- Auto-saving of the current draft and signed-in user
+- Back-home navigation across every page
 
 ## Run locally
 ```bash
@@ -24,3 +25,6 @@ npm run build
 ```bash
 npm test
 ```
+
+## Deploy
+This project is ready for Vercel deployment. Add the repository to Vercel and it will use the included vercel.json rewrite rule.

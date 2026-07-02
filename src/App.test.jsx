@@ -6,6 +6,12 @@ import App from './App';
 const renderApp = () => render(<MemoryRouter><App /></MemoryRouter>);
 
 describe('Twiiiiter app', () => {
+  beforeEach(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.clear();
+    }
+  });
+
   it('renders the feed and the navigation links', () => {
     renderApp();
 
@@ -32,5 +38,26 @@ describe('Twiiiiter app', () => {
     await user.click(screen.getByRole('button', { name: /publish/i }));
 
     expect(screen.getByText(/Testing the composer/i)).toBeInTheDocument();
+  });
+
+  it('persists the signed-in user and draft across refreshes', async () => {
+    const user = userEvent.setup();
+    const { unmount } = renderApp();
+
+    await user.click(screen.getByRole('link', { name: /sign in/i }));
+    await user.click(screen.getByRole('button', { name: /create account/i }));
+    await user.type(screen.getByLabelText(/full name/i), 'Mina');
+    await user.type(screen.getByLabelText(/email/i), 'mina@example.com');
+    await user.type(screen.getByLabelText(/^password/i), 'secret123');
+    await user.click(screen.getByRole('button', { name: /sign up/i }));
+
+    await user.type(screen.getByPlaceholderText(/write something smart/i), 'Draft that should persist');
+    expect(typeof window !== 'undefined' && window.localStorage ? window.localStorage.getItem('twiiiiter-draft') : null).toBe('Draft that should persist');
+    unmount();
+
+    renderApp();
+
+    expect(screen.getByDisplayValue(/Draft that should persist/i)).toBeInTheDocument();
+    expect(screen.getByText(/welcome, mina/i)).toBeInTheDocument();
   });
 });

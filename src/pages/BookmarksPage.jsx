@@ -1,22 +1,29 @@
+import { Link } from 'react-router-dom';
+import PageFrame from '../components/PageFrame';
+
 function BookmarksPage() {
   return (
-    <div className="page-shell">
-      <header className="topbar">
-        <div className="brand-block">
-          <div className="brand-mark">✦</div>
-          <div className="brand-copy">
-            <p className="eyebrow">Saved</p>
-            <h1>Bookmarks</h1>
-          </div>
+    <PageFrame
+      eyebrow="Saved"
+      title="Bookmarks"
+      description="Collect useful ideas, thoughtful posts, and future reads in one place."
+      actions={<Link className="primary-button" to="/explore">Explore more</Link>}
+    >
+      <div className="panel bookmark-grid">
+        <div className="info-card">
+          <h3>Reading list</h3>
+          <p>Keep your most valuable resources visible and easy to revisit.</p>
         </div>
-      </header>
-      <main className="layout-grid single-column">
-        <div className="panel">
-          <h2>Your saved posts</h2>
-          <p>Bookmarking now has a dedicated destination inside the same experience.</p>
+        <div className="info-card">
+          <h3>Saved replies</h3>
+          <p>Store quick ideas you can reuse when the conversation turns thoughtful.</p>
         </div>
-      </main>
-    </div>
+        <div className="info-card">
+          <h3>Future inspiration</h3>
+          <p>Gather examples, references, and prompts that inspire your next post.</p>
+        </div>
+      </div>
+    </PageFrame>
   );
 }
 

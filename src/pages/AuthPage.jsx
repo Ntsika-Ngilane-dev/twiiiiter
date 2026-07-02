@@ -1,6 +1,48 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+const createMemoryStorage = () => {
+  const store = {};
+  return {
+    getItem(key) {
+      return Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null;
+    },
+    setItem(key, value) {
+      store[key] = String(value);
+    },
+    removeItem(key) {
+      delete store[key];
+    },
+    clear() {
+      Object.keys(store).forEach((key) => delete store[key]);
+    }
+  };
+};
+
+const getStorage = () => {
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = window.localStorage;
+      if (existing && typeof existing.getItem === 'function') {
+        return existing;
+      }
+    } catch {
+      // fall back to an in-memory store below
+    }
+
+    if (!window.localStorage) {
+      const fallback = createMemoryStorage();
+      Object.defineProperty(window, 'localStorage', {
+        configurable: true,
+        value: fallback
+      });
+      return fallback;
+    }
+  }
+
+  return createMemoryStorage();
+};
+
 function AuthPage({ onAuthSuccess }) {
   const [mode, setMode] = useState('signup');
   const [form, setForm] = useState({ name: '', email: '', password: '', photo: '' });
@@ -28,8 +70,8 @@ function AuthPage({ onAuthSuccess }) {
       return;
     }
 
-    const storage = typeof window !== 'undefined' ? window.localStorage : null;
-    const savedUsers = JSON.parse(storage?.getItem('twiiiiter-users') || '[]');
+    const storage = getStorage();
+    const savedUsers = JSON.parse(storage.getItem('twiiiiter-users') || '[]');
 
     if (mode === 'signup') {
       const existing = savedUsers.find((user) => user.email.toLowerCase() === form.email.toLowerCase());
@@ -47,7 +89,7 @@ function AuthPage({ onAuthSuccess }) {
       };
 
       savedUsers.push(user);
-      storage?.setItem('twiiiiter-users', JSON.stringify(savedUsers));
+      storage.setItem('twiiiiter-users', JSON.stringify(savedUsers));
       onAuthSuccess(user);
       navigate('/');
       return;

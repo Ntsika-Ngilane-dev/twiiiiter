@@ -1,22 +1,33 @@
+import { Link } from 'react-router-dom';
+import PageFrame from '../components/PageFrame';
+
 function ExplorePage() {
   return (
-    <div className="page-shell">
-      <header className="topbar">
-        <div className="brand-block">
-          <div className="brand-mark">✦</div>
-          <div className="brand-copy">
-            <p className="eyebrow">Discover</p>
-            <h1>Explore</h1>
-          </div>
+    <PageFrame
+      eyebrow="Discover"
+      title="Explore"
+      description="Browse fresh conversations, creator spotlights, and ideas curated for modern product teams and curious readers."
+      actions={<Link className="primary-button" to="/auth">Join the conversation</Link>}
+    >
+      <div className="panel info-stack">
+        <div className="info-card">
+          <h3>Trending topics</h3>
+          <ul>
+            <li>#Productivity rituals</li>
+            <li>#Design systems</li>
+            <li>#AI workflows</li>
+          </ul>
         </div>
-      </header>
-      <main className="layout-grid single-column">
-        <div className="panel">
-          <h2>Explore new topics</h2>
-          <p>Browse curated conversations and trending ideas that fit your interests.</p>
+        <div className="info-card">
+          <h3>Creator highlights</h3>
+          <p>Follow makers sharing calm, useful content with a polished, editorial feel.</p>
         </div>
-      </main>
-    </div>
+        <div className="info-card">
+          <h3>Popular now</h3>
+          <p>New posts are surfacing every minute, so the feed stays active and dynamic.</p>
+        </div>
+      </div>
+    </PageFrame>
   );
 }
 

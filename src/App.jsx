@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import AuthPage from './pages/AuthPage';
@@ -33,15 +33,63 @@ const starterPosts = [
   }
 ];
 
+const createMemoryStorage = () => {
+  const store = {};
+  return {
+    getItem(key) {
+      return Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null;
+    },
+    setItem(key, value) {
+      store[key] = String(value);
+    },
+    removeItem(key) {
+      delete store[key];
+    },
+    clear() {
+      Object.keys(store).forEach((key) => delete store[key]);
+    }
+  };
+};
+
+const getStorage = () => {
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = window.localStorage;
+      if (existing && typeof existing.getItem === 'function') {
+        return existing;
+      }
+    } catch {
+      // fall back to an in-memory store below
+    }
+
+    if (!window.localStorage) {
+      const fallback = createMemoryStorage();
+      Object.defineProperty(window, 'localStorage', {
+        configurable: true,
+        value: fallback
+      });
+      return fallback;
+    }
+  }
+
+  return createMemoryStorage();
+};
+
 function App() {
-  const storage = typeof window !== 'undefined' ? window.localStorage : null;
+  const storage = useMemo(() => getStorage(), []);
   const [darkMode, setDarkMode] = useState(false);
   const [posts, setPosts] = useState(() => {
     const saved = storage?.getItem('twiiiiter-posts');
     return saved ? JSON.parse(saved) : starterPosts;
   });
-  const [draft, setDraft] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [draft, setDraft] = useState(() => {
+    const saved = storage?.getItem('twiiiiter-draft');
+    return saved || '';
+  });
+  const [imageUrl, setImageUrl] = useState(() => {
+    const saved = storage?.getItem('twiiiiter-image');
+    return saved || '';
+  });
   const [user, setUser] = useState(() => {
     const saved = storage?.getItem('twiiiiter-user');
     return saved ? JSON.parse(saved) : null;
@@ -59,6 +107,24 @@ function App() {
       storage?.removeItem('twiiiiter-user');
     }
   }, [user]);
+
+  const persistDraft = (value) => {
+    setDraft(value);
+    if (value) {
+      storage.setItem('twiiiiter-draft', value);
+    } else {
+      storage.removeItem('twiiiiter-draft');
+    }
+  };
+
+  const persistImageUrl = (value) => {
+    setImageUrl(value);
+    if (value) {
+      storage.setItem('twiiiiter-image', value);
+    } else {
+      storage.removeItem('twiiiiter-image');
+    }
+  };
 
   const handlePublish = () => {
     const trimmed = draft.trim();
@@ -78,8 +144,8 @@ function App() {
     };
 
     setPosts((current) => [newPost, ...current]);
-    setDraft('');
-    setImageUrl('');
+    persistDraft('');
+    persistImageUrl('');
     setComposerOpen(false);
   };
 
@@ -97,9 +163,9 @@ function App() {
               user={user}
               posts={posts}
               draft={draft}
-              setDraft={setDraft}
+              setDraft={persistDraft}
               imageUrl={imageUrl}
-              setImageUrl={setImageUrl}
+              setImageUrl={persistImageUrl}
               onPublish={handlePublish}
               onOpenComposer={() => setComposerOpen(true)}
               darkMode={darkMode}
